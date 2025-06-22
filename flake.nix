@@ -1,20 +1,54 @@
 {
-  description = "A simple NixOS flake";
+  description = "NixOS configuration";
 
   inputs = {
-    # NixOS official package source, using the nixos-25.05 branch here
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
-  };
+    nixpkgs = {
+      url = "github:nixos/nixpkgs/nixos-25.05";
+    };
 
-  outputs = { self, nixpkgs, ... }@inputs: {
-    # Please replace my-nixos with your hostname
-    nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
-      system = "x86_64-linux";
-      modules = [
-        # Import the previous configuration.nix we used,
-        # so the old configuration file still takes effect
-        ./configuration.nix
-      ];
+    nixos-hardware = {
+      url = "github:NixOS/nixos-hardware";
+    };
+
+    home-manager = {
+      url = "github:nix-community/home-manager/release-25.05";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    firefox-addons = {
+      url = "gitlab:rycee/nur-expressions?dir=pkgs/firefox-addons";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
   };
+
+  outputs = {nixpkgs, self, ... }@inputs:
+  let
+    username = "tuhura";
+    system = "x86_64-linux";
+    pkgs = import nixpkgs {
+      inherit system;
+      config.allowUnfree = true;
+    };
+    lib = nixpkgs.lib;
+    in
+    {
+      nixosConfigurations = {
+        # iso = nixpkgs.lib.nixosSystem {
+        #   modules = [
+        #     "${nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-graphical-gnome.nix"
+        #     "${nixpkgs}/nixos.modules/installer/cd-dvd/channel.nix"
+        #     ./hosts/iso
+        #   ];
+        #   specialArgs = {inherit inputs;};
+        # };
+        nixos = nixpkgs.lib.nixosSystem {
+          inherit system;
+          modules = [ ./hosts/lenovo-ideapad ];
+          specialArgs = {
+            host = "nixos";
+            inherit self inputs username;
+          };
+        };
+      };
+    };
 }
