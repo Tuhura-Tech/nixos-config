@@ -3,7 +3,7 @@
   home.packages = with pkgs; [
     nixd
 
-    python3
+    python3Full
 
     nodejs
     corepack

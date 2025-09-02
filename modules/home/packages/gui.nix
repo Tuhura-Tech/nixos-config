@@ -5,5 +5,11 @@
     gimp
     godot_4
     blender
+    freecad
+    inkscape
+    prusaslicer
+    krita
+    kicad
+    
   ];
 }
